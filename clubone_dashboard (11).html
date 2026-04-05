@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Club One · Panel de Inversión</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:sans-serif;background:#070e09;color:#e0f0e8;min-height:100vh;}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#0d1a10;border-bottom:1px solid #1e3322;flex-wrap:wrap;gap:8px;}
+.logo-text{font-size:14px;font-weight:700;color:#3de07a;letter-spacing:.06em;}
+.logo-sub{font-size:10px;color:#5a9a6a;letter-spacing:.1em;margin-top:2px;}
+.ebtn{padding:5px 12px;background:#0a2015;border:2px solid #2a7a3e;border-radius:7px;color:#3de07a;font-size:11px;font-weight:700;cursor:pointer;}
+.ebtn:hover{background:#1a5a2e;}
+.mbar{display:flex;align-items:center;gap:8px;background:#0a1a0d;border:1px solid #1e3322;border-radius:10px;padding:5px 10px;}
+.mbar label{font-size:10px;color:#5a9a6a;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;}
+.msel{background:#060e08;border:1px solid #2a7a3e;border-radius:6px;color:#3de07a;font-size:12px;font-weight:700;padding:4px 8px;cursor:pointer;outline:none;}
+.sind{font-size:10px;color:#1e5a2e;} .sind.ok{color:#3de07a;}
+.tabs{display:flex;gap:6px;}
+.tab{padding:7px 16px;font-size:12px;font-weight:700;border-radius:8px;cursor:pointer;border:2px solid #1e6030;background:#0a2015;color:#2db85e;transition:all .15s;}
+.tab:hover{background:#123020;color:#50e880;}
+.tab.active{background:#1a5a2e;color:#90ffb0;border-color:#3de07a;box-shadow:0 0 10px rgba(61,224,122,.4);}
+.sec{display:none;padding:12px 16px;} .sec.active{display:block;}
+.mets{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.met{background:#0d1a10;border:1px solid #1e3322;border-radius:10px;padding:10px 12px;position:relative;overflow:hidden;}
+.met::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#3de07a;}
+.mlb{font-size:10px;color:#5a9a6a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;}
+.mv{font-size:19px;font-weight:700;color:#e0f0e8;}
+.mh{font-size:9px;color:#1e5a2e;margin-top:2px;}
+.gn{color:#3de07a;} .rd{color:#e05050;} .bl{color:#4a9eff;}
+.ed{cursor:pointer;border-bottom:1px dashed #1e5a2e;}
+.ed:hover{background:rgba(61,224,122,.1);}
+.ie{background:#040a06;border:1px solid #3de07a;border-radius:4px;color:#3de07a;font-size:inherit;font-weight:inherit;font-family:inherit;padding:0 4px;outline:none;width:90px;}
+.g2l{display:grid;grid-template-columns:3fr 2fr;gap:8px;margin-bottom:8px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.card{background:#0d1a10;border:1px solid #1e3322;border-radius:10px;padding:11px 13px;}
+.ct{font-size:10px;font-weight:700;color:#5a9a6a;text-transform:uppercase;letter-spacing:.09em;margin-bottom:9px;border-left:3px solid #3de07a;padding-left:6px;}
+.frow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a2e1e;font-size:11px;}
+.frow:last-child{border:none;}
+.flbl{color:#7aaa8a;}
+.ftot{display:flex;justify-content:space-between;padding:7px 0 0;margin-top:4px;border-top:1px solid #2a5a3a;font-size:12px;font-weight:700;}
+.pmets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.prow{padding:6px 0;border-bottom:1px solid #1a2e1e;}
+.prow:last-of-type{border:none;}
+.ptop{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+.pbg{height:3px;background:#040a06;border-radius:2px;overflow:hidden;}
+.pbar{height:100%;border-radius:2px;}
+.db{background:none;border:none;color:#1e4a2e;cursor:pointer;font-size:11px;padding:0 2px;}
+.db:hover{color:#e05050;}
+.abtn{width:100%;margin-top:7px;padding:6px;background:none;border:1px dashed #1a4a2a;border-radius:7px;color:#1e5a2e;font-size:11px;cursor:pointer;}
+.abtn:hover{border-color:#3de07a;color:#3de07a;}
+.ptotal{display:flex;justify-content:space-between;padding:7px 0 2px;margin-top:4px;border-top:1px solid #2a5a3a;font-size:12px;font-weight:700;}
+.ptotal span:first-child{color:#5a9a6a;}
+</style>
+</head>
+<body>
+<div class="hdr" style="flex-wrap:nowrap;">
+  <div style="flex-shrink:0"><div class="logo-text">CLUB ONE &middot; Panel de Inversi&oacute;n</div><div class="logo-sub">Capital &middot; Estrategia &middot; Control</div></div>
+  <div style="display:flex;gap:6px;flex-shrink:0;">
+    <button class="ebtn" onclick="xPDF()">&#8595; PDF</button>
+    <button class="ebtn" onclick="xCSV()">&#8595; CSV</button>
+  </div>
+  <div class="mbar" style="flex-shrink:0;">
+    <label>Mes:</label>
+    <select class="msel" id="msel" onchange="cambiarMes()"></select>
+    <span class="sind" id="sind">&#9679; guardado</span>
+  </div>
+  <div class="tabs" style="flex-shrink:0;">
+    <button class="tab active" onclick="sw('res',this)" style="padding:7px 12px;">Resumen</button>
+    <button class="tab" onclick="sw('bud',this)" style="padding:7px 12px;">Presupuesto</button>
+    <button class="tab" onclick="sw('pat',this)" style="padding:7px 12px;">Patrimonio</button>
+  </div>
+</div>
+
+<div id="res" class="sec active">
+  <div class="mets">
+    <div class="met"><div class="mlb">Patrimonio neto</div><div class="mv ed gn" id="m-pat">0</div><div class="mh">Activos &minus; Pasivos &middot; &#9998; editar</div></div>
+    <div class="met"><div class="mlb">Ingresos del mes</div><div class="mv gn" id="m-ing">0</div><div class="mh">del presupuesto</div></div>
+    <div class="met"><div class="mlb">Gastos del mes</div><div class="mv rd" id="m-gas">0</div><div class="mh">del presupuesto</div></div>
+    <div class="met"><div class="mlb">Inversi&oacute;n del mes</div><div class="mv bl" id="m-inv">0</div><div class="mh">del presupuesto</div></div>
+    <div class="met"><div class="mlb">Margen / Ahorro</div><div class="mv" id="m-mar">0</div><div class="mh">ingresos &minus; gastos &minus; inv</div></div>
+  </div>
+  <div class="g2l">
+    <div class="card"><div class="ct">Evoluci&oacute;n del patrimonio &mdash; a&ntilde;o en curso</div><div style="position:relative;height:185px"><canvas id="cP"></canvas></div></div>
+    <div class="card"><div class="ct">Distribuci&oacute;n de activos</div><div style="position:relative;height:135px;margin-bottom:8px"><canvas id="cA"></canvas></div><div id="leg"></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Resumen de ingresos</div><div id="r-ing"></div><div class="ftot"><span style="color:#5a9a6a">Total</span><span class="gn" id="rt-ing">0</span></div></div>
+    <div class="card"><div class="ct">Resumen de gastos</div><div id="r-gas"></div><div class="ftot"><span style="color:#5a9a6a">Total</span><span class="rd" id="rt-gas">0</span></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Desglose de gastos</div><div style="position:relative;height:180px"><canvas id="cG"></canvas></div></div>
+    <div class="card"><div class="ct">Desglose de inversi&oacute;n</div><div style="position:relative;height:180px"><canvas id="cI"></canvas></div></div>
+  </div>
+</div>
+
+<div id="bud" class="sec">
+  <div class="pmets" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+    <div class="met"><div class="mlb">Ingresos totales</div><div class="mv gn" id="p-ing">0</div></div>
+    <div class="met"><div class="mlb">Gastos totales</div><div class="mv rd" id="p-gas">0</div></div>
+    <div class="met"><div class="mlb">Inversi&oacute;n total</div><div class="mv bl" id="p-inv">0</div></div>
+    <div class="met"><div class="mlb">Margen disponible</div><div class="mv" id="p-mar">0</div></div>
+  </div>
+  <div style="font-size:9px;color:#1e4a2e;margin-bottom:10px;letter-spacing:.05em;">TOCA CUALQUIER VALOR &middot; USA + PARA A&Ntilde;ADIR CATEGOR&Iacute;AS &middot; EL GR&Aacute;FICO SE ACTUALIZA SOLO</div>
+  <div class="g2" style="margin-bottom:8px;">
+    <div class="card">
+      <div class="ct">Ingresos del mes</div>
+      <div id="p-ing-rows"></div>
+      <button class="abtn" onclick="addFila('ing')">+ A&ntilde;adir ingreso</button>
+      <div class="ptotal"><span>Total ingresos</span><span class="gn" id="pt-ing">0</span></div>
+    </div>
+    <div class="card">
+      <div class="ct">Gastos del mes</div>
+      <div id="p-gas-rows"></div>
+      <button class="abtn" onclick="addFila('gas')">+ A&ntilde;adir gasto</button>
+      <div class="ptotal"><span>Total gastos</span><span class="rd" id="pt-gas">0</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Inversi&oacute;n del mes <span style="font-size:9px;color:#2a5a3a;font-weight:400;margin-left:6px;">&middot; el donut se actualiza autom&aacute;ticamente</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px;" id="p-inv-rows"></div>
+    <button class="abtn" onclick="addFila('inv')">+ A&ntilde;adir inversi&oacute;n</button>
+    <div class="ptotal"><span>Total inversi&oacute;n</span><span class="bl" id="pt-inv">0</span></div>
+  </div>
+</div>
+
+<div id="pat" class="sec">
+  <div class="pmets" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+    <div class="met"><div class="mlb">Total activos</div><div class="mv gn" id="pat-act">€0</div></div>
+    <div class="met"><div class="mlb">Total pasivos</div><div class="mv rd" id="pat-pas">€0</div></div>
+    <div class="met"><div class="mlb">Patrimonio neto</div><div class="mv" id="pat-net">€0</div><div class="mh">activos &minus; pasivos</div></div>
+  </div>
+  <div style="font-size:9px;color:#1e4a2e;margin-bottom:10px;letter-spacing:.05em;">TOCA CUALQUIER VALOR · USA + PARA A&Ntilde;ADIR CATEGOR&Iacute;AS · EL PATRIMONIO NETO SE ACTUALIZA SOLO</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+    <div class="card">
+      <div class="ct">Activos</div>
+      <div id="pat-act-rows"></div>
+      <button class="abtn" onclick="addPatFila('act')">+ A&ntilde;adir activo</button>
+      <div class="ptotal"><span>Total activos</span><span class="gn" id="pt-act">€0</span></div>
+    </div>
+    <div class="card">
+      <div class="ct">Pasivos</div>
+      <div id="pat-pas-rows"></div>
+      <button class="abtn" onclick="addPatFila('pas')">+ A&ntilde;adir pasivo</button>
+      <div class="ptotal"><span>Total pasivos</span><span class="rd" id="pt-pas">€0</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var MN=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var CL=['#3de07a','#4a9eff','#f0c040','#e05050','#aa70ff','#ff9050','#50e0e0','#ff70a0','#c0ff70','#ffb0ff'];
+var gc='rgba(255,255,255,.05)';
+var tc='#2a5a3a';
+var D;
+
+function datosVacios(){
+  return {
+    pat:0,
+    ing:[{l:'Salario / n\u00f3mina',v:0},{l:'Alquiler cobrado',v:0},{l:'Dividendos',v:0},{l:'Venta de activos',v:0},{l:'Otros ingresos',v:0}],
+    gas:[{l:'Vivienda',v:0},{l:'Alimentaci\u00f3n',v:0},{l:'Transporte',v:0},{l:'Ocio y familia',v:0},{l:'Salud',v:0},{l:'Seguros',v:0},{l:'Formaci\u00f3n',v:0},{l:'Otros gastos',v:0}],
+    inv:[{l:'ETFs / Fondos',v:0},{l:'Inmuebles',v:0},{l:'Plan de pensiones',v:0},{l:'Renta fija',v:0},{l:'Acciones',v:0},{l:'Otros (inversi\u00f3n)',v:0}],
+    act:[{l:'Liquidez (cuentas)',v:0},{l:'Inversiones',v:0},{l:'Inmuebles',v:0},{l:'Veh\u00edculos',v:0},{l:'Otros activos',v:0}],
+    pas:[{l:'Hipoteca',v:0},{l:'Pr\u00e9stamos',v:0},{l:'Tarjetas',v:0},{l:'Otros pasivos',v:0}]
+  };
+}
+
+function construirSelector(){
+  var s=document.getElementById('msel');
+  var hoy=new Date();
+  var anos=[2024,2025,2026,2027];
+  for(var ai=0;ai<anos.length;ai++){
+    var y=anos[ai];
+    for(var mi=0;mi<12;mi++){
+      var o=document.createElement('option');
+      o.value=y+'-'+mi;
+      o.textContent=MN[mi]+' '+y;
+      if(y===hoy.getFullYear()&&mi===hoy.getMonth())o.selected=true;
+      s.appendChild(o);
+    }
+  }
+}
+
+function clave(){return 'c1_'+document.getElementById('msel').value;}
+
+function guardar(){
+  try{localStorage.setItem(clave(),JSON.stringify(D));parpadear();}catch(e){}
+}
+
+function cargar(){
+  try{
+    var raw=localStorage.getItem(clave());
+    if(raw){
+      D=JSON.parse(raw);
+      if(typeof D.pat==='undefined')D.pat=0;
+      if(!Array.isArray(D.ing)||D.ing.length===0)D.ing=datosVacios().ing;
+      if(!Array.isArray(D.gas)||D.gas.length===0)D.gas=datosVacios().gas;
+      if(!Array.isArray(D.inv)||D.inv.length===0)D.inv=datosVacios().inv;
+      if(!Array.isArray(D.act))D.act=datosVacios().act;
+      if(!Array.isArray(D.pas))D.pas=datosVacios().pas;
+      // Fix corrupted entries
+      D.act=D.act.filter(function(r){return r&&typeof r.l==='string';});
+      D.pas=D.pas.filter(function(r){return r&&typeof r.l==='string';});
+      if(D.act.length===0)D.act=datosVacios().act;
+      if(D.pas.length===0)D.pas=datosVacios().pas;
+    } else {
+      D=datosVacios();
+    }
+  }catch(e){D=datosVacios();}
+  pintarTodo();
+}
+
+function parpadear(){
+  var e=document.getElementById('sind');
+  e.textContent='\u2713 guardado';e.className='sind ok';
+  setTimeout(function(){e.textContent='\u25cf guardado';e.className='sind';},2000);
+}
+
+function cambiarMes(){guardar();cargar();}
+
+function fmt(n){return '\u20ac'+Math.round(Math.abs(n)).toLocaleString('es-ES');}
+function tIng(){return D.ing.reduce(function(s,r){return s+(r.v||0);},0);}
+function tGas(){return D.gas.reduce(function(s,r){return s+(r.v||0);},0);}
+function tInv(){return D.inv.reduce(function(s,r){return s+(r.v||0);},0);}
+function margen(){return tIng()-tGas()-tInv();}
+
+function pintarMetricas(){
+  if(!D.act)D.act=datosVacios().act;
+  if(!D.pas)D.pas=datosVacios().pas;
+  var pneto=patNeto();
+  var mpatEl=document.getElementById('m-pat');
+  if(tAct()>0||tPas()>0){
+    mpatEl.textContent=(pneto>=0?'':'-')+fmt(pneto);
+    mpatEl.className='mv ed gn';
+  } else {
+    mpatEl.textContent=fmt(D.pat);
+    mpatEl.className='mv ed gn';
+  }
+  document.getElementById('m-ing').textContent=fmt(tIng());
+  document.getElementById('m-gas').textContent=fmt(tGas());
+  document.getElementById('m-inv').textContent=fmt(tInv());
+  var mar=margen();
+  var em=document.getElementById('m-mar');
+  em.textContent=(mar>=0?'':'-')+fmt(mar);
+  em.className='mv '+(mar>=0?'gn':'rd');
+  document.getElementById('p-ing').textContent=fmt(tIng());
+  document.getElementById('p-gas').textContent=fmt(tGas());
+  document.getElementById('p-inv').textContent=fmt(tInv());
+  var ep=document.getElementById('p-mar');
+  ep.textContent=(mar>=0?'':'-')+fmt(mar);
+  ep.className='mv '+(mar>=0?'gn':'rd');
+}
+
+function pintarResumen(){
+  var cats=['ing','gas'];
+  for(var ci=0;ci<cats.length;ci++){
+    var cat=cats[ci];
+    var el=document.getElementById('r-'+cat);
+    el.innerHTML='';
+    var datos=D[cat].filter(function(r){return r.v>0;});
+    if(!datos.length){
+      el.innerHTML='<div style="font-size:11px;color:#2a5a3a;padding:6px 0">Sin datos &mdash; rellena el Presupuesto</div>';
+    } else {
+      for(var di=0;di<datos.length;di++){
+        var r=datos[di];
+        var d=document.createElement('div');
+        d.className='frow';
+        d.innerHTML='<span class="flbl">'+r.l+'</span><span style="font-weight:700;color:'+(cat==='ing'?'#3de07a':'#e05050')+'">'+fmt(r.v)+'</span>';
+        el.appendChild(d);
+      }
+    }
+    document.getElementById('rt-'+cat).textContent=fmt(cat==='ing'?tIng():tGas());
+  }
+}
+
+function pintarDonut(){
+  var items=D.inv.filter(function(r){return r.v>0;});
+  var leg=document.getElementById('leg');
+  leg.innerHTML='';
+  if(!items.length){
+    leg.innerHTML='<div style="font-size:10px;color:#2a5a3a">Rellena Inversi\u00f3n en Presupuesto</div>';
+    if(window._cA){
+      _cA.data.labels=['Sin datos'];
+      _cA.data.datasets[0].data=[100];
+      _cA.data.datasets[0].backgroundColor=['#1e3322'];
+      _cA.update();
+    }
+    return;
+  }
+  var total=items.reduce(function(s,r){return s+r.v;},0);
+  var port=items.map(function(r,i){return {l:r.l,pct:Math.round(r.v/total*100),c:CL[i%CL.length]};});
+  for(var pi=0;pi<port.length;pi++){
+    var a=port[pi];
+    leg.innerHTML+='<div style="display:flex;align-items:center;gap:5px;font-size:10px;margin-bottom:3px"><span style="width:8px;height:8px;border-radius:2px;background:'+a.c+';display:inline-block"></span><span style="color:'+tc+'">'+a.l+' &middot; '+a.pct+'%</span></div>';
+  }
+  if(window._cA){
+    _cA.data.labels=port.map(function(a){return a.l;});
+    _cA.data.datasets[0].data=port.map(function(a){return a.pct;});
+    _cA.data.datasets[0].backgroundColor=port.map(function(a){return a.c;});
+    _cA.update();
+  }
+}
+
+function pintarBarras(){
+  if(!window._cG||!window._cI)return;
+  var g=D.gas.filter(function(r){return r.v>0;});
+  _cG.data.labels=g.map(function(r){return r.l;});
+  _cG.data.datasets[0].data=g.map(function(r){return r.v;});
+  _cG.update();
+  var inv=D.inv.filter(function(r){return r.v>0;});
+  _cI.data.labels=inv.map(function(r){return r.l;});
+  _cI.data.datasets[0].data=inv.map(function(r){return r.v;});
+  _cI.update();
+}
+
+function pintarPresupuesto(){
+  var cats=[['ing','#3de07a'],['gas','#e05050'],['inv','#4a9eff']];
+  for(var ci=0;ci<cats.length;ci++){
+    var cat=cats[ci][0];
+    var color=cats[ci][1];
+    var el=document.getElementById('p-'+cat+'-rows');
+    if(!el)continue;
+    el.innerHTML='';
+    var arr=D[cat];
+    var maxV=1;
+    for(var vi=0;vi<arr.length;vi++){if((arr[vi].v||0)>maxV)maxV=arr[vi].v;}
+    for(var ri=0;ri<arr.length;ri++){
+      (function(arr,i,cat,color,maxV){
+        var row=arr[i];
+        var d=document.createElement('div');
+        d.className='prow';
+        var pct=Math.round((row.v||0)/maxV*100);
+        var spanLbl=document.createElement('span');
+        spanLbl.className='ed';
+        spanLbl.style.cssText='font-size:11px;color:#5a9a6a';
+        spanLbl.textContent=row.l;
+        spanLbl.onclick=function(){editarTexto(arr[i],'l',this,pintarTodo);};
+        var spanVal=document.createElement('span');
+        spanVal.className='ed';
+        spanVal.style.cssText='font-size:11px;font-weight:700';
+        spanVal.textContent=fmt(row.v);
+        spanVal.onclick=function(){editarNum(arr[i],'v',this,pintarTodo);};
+        var btnDel=document.createElement('button');
+        btnDel.className='db';
+        btnDel.innerHTML='&#10005;';
+        btnDel.onclick=function(e){e.stopPropagation();arr.splice(i,1);pintarTodo();guardar();};
+        var ptop=document.createElement('div');
+        ptop.className='ptop';
+        var right=document.createElement('div');
+        right.style.cssText='display:flex;gap:4px;align-items:center';
+        right.appendChild(spanVal);
+        right.appendChild(btnDel);
+        ptop.appendChild(spanLbl);
+        ptop.appendChild(right);
+        var pbg=document.createElement('div');
+        pbg.className='pbg';
+        var pbar=document.createElement('div');
+        pbar.className='pbar';
+        pbar.style.cssText='width:'+pct+'%;background:'+color;
+        pbg.appendChild(pbar);
+        d.appendChild(ptop);
+        d.appendChild(pbg);
+        el.appendChild(d);
+      })(arr,ri,cat,color,maxV);
+    }
+    var tot=document.getElementById('pt-'+cat);
+    if(tot)tot.textContent=fmt(cat==='ing'?tIng():cat==='gas'?tGas():tInv());
+  }
+}
+
+function addFila(cat){
+  var lbls={ing:'Nuevo ingreso',gas:'Nuevo gasto',inv:'Nueva inversi\u00f3n'};
+  D[cat].push({l:lbls[cat],v:0});
+  pintarTodo();guardar();
+}
+
+function editarTexto(obj,k,el,cb){
+  var inp=document.createElement('input');
+  inp.className='ie';inp.style.width='130px';inp.value=obj[k];
+  el.innerHTML='';el.appendChild(inp);inp.focus();inp.select();
+  inp.onblur=function(){obj[k]=inp.value||obj[k];cb();guardar();};
+  inp.onkeydown=function(e){if(e.key==='Enter')inp.blur();};
+}
+
+function editarNum(obj,k,el,cb){
+  var inp=document.createElement('input');
+  inp.className='ie';inp.type='number';inp.style.width='80px';inp.value=obj[k]||0;
+  el.innerHTML='';el.appendChild(inp);inp.focus();inp.select();
+  inp.onblur=function(){obj[k]=parseFloat(inp.value)||0;cb();guardar();};
+  inp.onkeydown=function(e){if(e.key==='Enter')inp.blur();};
+}
+
+document.getElementById('m-pat').onclick=function(){
+  var el=this;
+  var inp=document.createElement('input');
+  inp.className='ie';inp.type='number';inp.value=D.pat;
+  el.innerHTML='';el.appendChild(inp);inp.focus();inp.select();
+  inp.onblur=function(){D.pat=parseFloat(inp.value)||0;pintarTodo();guardar();};
+  inp.onkeydown=function(e){if(e.key==='Enter')inp.blur();};
+};
+
+var _cP,_cA,_cG,_cI;
+
+function initGraficos(){
+  var bo={
+    responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '\u20ac'+Math.round(c.parsed.x).toLocaleString('es-ES');}}}},
+    scales:{
+      x:{grid:{color:gc},ticks:{color:tc,font:{size:10},callback:function(v){return '\u20ac'+(v>=1000?(v/1000).toFixed(0)+'k':v);}}},
+      y:{grid:{display:false},ticks:{color:'#7aaa8a',font:{size:10}}}
+    }
+  };
+  _cP=new Chart(document.getElementById('cP'),{
+    type:'line',
+    data:{labels:MN,datasets:[{data:[0,0,0,0,0,0,0,0,0,0,0,0],borderColor:'#3de07a',backgroundColor:'rgba(61,224,122,.07)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#3de07a',fill:true,tension:.35}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:10}}},y:{grid:{color:gc},ticks:{color:tc,font:{size:10},callback:function(v){return '\u20ac'+(v/1000).toFixed(0)+'k';}}}}}
+  });
+  _cA=new Chart(document.getElementById('cA'),{
+    type:'doughnut',
+    data:{labels:['Sin datos'],datasets:[{data:[100],backgroundColor:['#1e3322'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}
+  });
+  _cG=new Chart(document.getElementById('cG'),{
+    type:'bar',
+    data:{labels:[],datasets:[{data:[],backgroundColor:'rgba(224,80,80,.8)',borderRadius:4}]},
+    options:bo
+  });
+  _cI=new Chart(document.getElementById('cI'),{
+    type:'bar',
+    data:{labels:[],datasets:[{data:[],backgroundColor:'rgba(74,158,255,.8)',borderRadius:4}]},
+    options:bo
+  });
+}
+
+function actualizarPatrimonio(){
+  if(!_cP)return;
+  var parts=document.getElementById('msel').value.split('-');
+  var y=parts[0];
+  var hist=[];
+  for(var mi=0;mi<12;mi++){
+    try{
+      var raw=localStorage.getItem('c1_'+y+'-'+mi);
+      if(raw){
+        try{
+          var d=JSON.parse(raw);
+          var actT=Array.isArray(d.act)?d.act.reduce(function(s,r){return s+(r.v||0);},0):0;
+          var pasT=Array.isArray(d.pas)?d.pas.reduce(function(s,r){return s+(r.v||0);},0):0;
+          hist.push(actT>0||pasT>0?actT-pasT:d.pat||0);
+        }catch(e){hist.push(0);}
+      }
+      else hist.push(0);
+    }catch(e){hist.push(0);}
+  }
+  _cP.data.datasets[0].data=hist;_cP.update();
+}
+
+function tAct(){return (D.act||[]).reduce(function(s,r){return s+(r.v||0);},0);}
+function tPas(){return (D.pas||[]).reduce(function(s,r){return s+(r.v||0);},0);}
+function patNeto(){return tAct()-tPas();}
+
+function pintarPatrimonio(){
+  if(!Array.isArray(D.act))D.act=datosVacios().act;
+  if(!Array.isArray(D.pas))D.pas=datosVacios().pas;
+  var cats=[['act','#3de07a'],['pas','#e05050']];
+  for(var ci=0;ci<cats.length;ci++){
+    var cat=cats[ci][0];
+    var color=cats[ci][1];
+    var el=document.getElementById('pat-'+cat+'-rows');
+    if(!el)continue;
+    el.innerHTML='';
+    var arr=D[cat];
+    var maxV=1;
+    for(var vi=0;vi<arr.length;vi++){if((arr[vi].v||0)>maxV)maxV=arr[vi].v;}
+    for(var ri=0;ri<arr.length;ri++){
+      (function(arr,i,cat,color,maxV){
+        var row=arr[i];
+        var d=document.createElement('div');
+        d.className='prow';
+        var pct=Math.round((row.v||0)/maxV*100);
+        var spanLbl=document.createElement('span');
+        spanLbl.className='ed';
+        spanLbl.style.cssText='font-size:11px;color:#5a9a6a';
+        spanLbl.textContent=row.l;
+        spanLbl.onclick=function(){editarTexto(arr[i],'l',this,pintarTodo);};
+        var spanVal=document.createElement('span');
+        spanVal.className='ed';
+        spanVal.style.cssText='font-size:11px;font-weight:700';
+        spanVal.textContent=fmt(row.v);
+        spanVal.onclick=function(){editarNum(arr[i],'v',this,pintarTodo);};
+        var btnDel=document.createElement('button');
+        btnDel.className='db';
+        btnDel.innerHTML='&#10005;';
+        btnDel.onclick=function(e){e.stopPropagation();arr.splice(i,1);pintarTodo();guardar();};
+        var ptop=document.createElement('div');
+        ptop.className='ptop';
+        var right=document.createElement('div');
+        right.style.cssText='display:flex;gap:4px;align-items:center';
+        right.appendChild(spanVal);
+        right.appendChild(btnDel);
+        ptop.appendChild(spanLbl);
+        ptop.appendChild(right);
+        var pbg=document.createElement('div');
+        pbg.className='pbg';
+        var pbar=document.createElement('div');
+        pbar.className='pbar';
+        pbar.style.cssText='width:'+pct+'%;background:'+color;
+        pbg.appendChild(pbar);
+        d.appendChild(ptop);
+        d.appendChild(pbg);
+        el.appendChild(d);
+      })(arr,ri,cat,color,maxV);
+    }
+    var tot=document.getElementById('pt-'+cat);
+    if(tot)tot.textContent=fmt(cat==='act'?tAct():tPas());
+  }
+  document.getElementById('pat-act').textContent=fmt(tAct());
+  document.getElementById('pat-pas').textContent=fmt(tPas());
+  var pn=patNeto();
+  var pnel=document.getElementById('pat-net');
+  pnel.textContent=(pn>=0?'':'-')+fmt(pn);
+  pnel.className='mv '+(pn>=0?'gn':'rd');
+}
+
+function addPatFila(cat){
+  var lbls={act:'Nuevo activo',pas:'Nuevo pasivo'};
+  D[cat].push({l:lbls[cat],v:0});
+  pintarTodo();guardar();
+}
+
+function pintarTodo(){
+  pintarMetricas();
+  pintarResumen();
+  pintarDonut();
+  pintarBarras();
+  pintarPresupuesto();
+  pintarPatrimonio();
+  actualizarPatrimonio();
+}
+
+function sw(tab,btn){
+  var secs=document.querySelectorAll('.sec');
+  for(var i=0;i<secs.length;i++)secs[i].classList.remove('active');
+  var tabs=document.querySelectorAll('.tab');
+  for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');
+  document.getElementById(tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='res'){
+    setTimeout(function(){
+      pintarMetricas();
+      pintarResumen();
+      pintarDonut();
+      pintarBarras();
+      actualizarPatrimonio();
+    },50);
+  }
+}
+
+function xCSV(){
+  var parts=document.getElementById('msel').value.split('-');
+  var mn=MN[parseInt(parts[1])]+' '+parts[0];
+  var csv='CLUB ONE\nMes:,'+mn+'\n\nMETRICAS\nPatrimonio,'+D.pat+'\nIngresos,'+tIng()+'\nGastos,'+tGas()+'\nInversion,'+tInv()+'\nMargen,'+margen()+'\n\nINGRESOS\nCategoria,Importe\n';
+  for(var i=0;i<D.ing.length;i++)csv+=D.ing[i].l+','+D.ing[i].v+'\n';
+  csv+='\nGASTOS\nCategoria,Importe\n';
+  for(var i=0;i<D.gas.length;i++)csv+=D.gas[i].l+','+D.gas[i].v+'\n';
+  csv+='\nINVERSION\nCategoria,Importe\n';
+  for(var i=0;i<D.inv.length;i++)csv+=D.inv[i].l+','+D.inv[i].v+'\n';
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='ClubOne_'+mn.replace(' ','_')+'.csv';a.click();
+}
+
+function xPDF(){
+  var parts=document.getElementById('msel').value.split('-');
+  var mn=MN[parseInt(parts[1])]+' '+parts[0];
+  var mar=margen();
+  var donut=document.getElementById('cA').toDataURL('image/png');
+  var barGas=document.getElementById('cG').toDataURL('image/png');
+  var barInv=document.getElementById('cI').toDataURL('image/png');
+  var linePat=document.getElementById('cP').toDataURL('image/png');
+  var items=D.inv.filter(function(r){return r.v>0;});
+  var tot=items.reduce(function(s,r){return s+r.v;},0)||1;
+  var portLeg='';
+  for(var pi=0;pi<items.length;pi++){
+    var r=items[pi];
+    portLeg+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="width:11px;height:11px;border-radius:2px;background:'+CL[pi%CL.length]+';display:inline-block"></span><span style="font-size:12px">'+r.l+'</span><span style="margin-left:auto;font-weight:700;font-size:12px">'+Math.round(r.v/tot*100)+'%</span></div>';
+  }
+  var iR='';
+  var ingF=D.ing.filter(function(r){return r.v>0;});
+  for(var i=0;i<ingF.length;i++)iR+='<tr><td>'+ingF[i].l+'</td><td style="color:#1a7a3a;font-weight:700">+\u20ac'+Math.round(ingF[i].v).toLocaleString('es-ES')+'</td></tr>';
+  if(!iR)iR='<tr><td colspan=2 style="color:#aaa">Sin datos</td></tr>';
+  var gR='';
+  var gasF=D.gas.filter(function(r){return r.v>0;});
+  for(var i=0;i<gasF.length;i++)gR+='<tr><td>'+gasF[i].l+'</td><td style="color:#c03030;font-weight:700">\u20ac'+Math.round(gasF[i].v).toLocaleString('es-ES')+'</td></tr>';
+  if(!gR)gR='<tr><td colspan=2 style="color:#aaa">Sin datos</td></tr>';
+  var vR='';
+  var invF=D.inv.filter(function(r){return r.v>0;});
+  for(var i=0;i<invF.length;i++)vR+='<tr><td>'+invF[i].l+'</td><td style="color:#1a4a9a;font-weight:700">\u20ac'+Math.round(invF[i].v).toLocaleString('es-ES')+'</td></tr>';
+  if(!vR)vR='<tr><td colspan=2 style="color:#aaa">Sin datos</td></tr>';
+  var w=window.open('','_blank');
+  var h='<!DOCTYPE html><html><head><meta charset=UTF-8><title>Club One '+mn+'</title>';
+  h+='<style>body{font-family:sans-serif;color:#111;padding:30px;max-width:820px;margin:0 auto}h1{color:#1a6a2a;font-size:22px;margin-bottom:4px}h2{color:#1a6a2a;font-size:12px;margin:18px 0 6px;border-bottom:2px solid #3de07a;padding-bottom:3px;text-transform:uppercase;letter-spacing:.06em}.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}.met{background:#f0faf2;border-radius:8px;padding:10px;text-align:center}.lb{font-size:10px;color:#5a9a6a;text-transform:uppercase;margin-bottom:3px}.vl{font-size:15px;font-weight:700}.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.cbox{background:#f9fdf9;border-radius:8px;padding:8px;border:1px solid #dceede}.cbox img{width:100%;height:auto}.dw{display:flex;align-items:center;gap:16px}.dw img{width:130px;height:130px;flex-shrink:0}table{width:100%;border-collapse:collapse;font-size:12px}td{padding:5px 7px;border-bottom:1px solid #e0e8e2}.tr{font-weight:700;background:#f0faf2}.footer{margin-top:24px;font-size:10px;color:#999;text-align:center;border-top:1px solid #e0e8e2;padding-top:10px}@media print{.np{display:none}}</style>';
+  h+='</head><body>';
+  h+='<h1>CLUB ONE &middot; Panel de Inversi&oacute;n</h1>';
+  h+='<p style="color:#5a9a6a;font-size:12px;margin-bottom:12px">Capital &middot; Estrategia &middot; Control &nbsp;|&nbsp; <strong>'+mn+'</strong></p>';
+  h+='<p class=np style="margin-bottom:14px"><button onclick=window.print() style="padding:6px 14px;background:#1a6a2a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px">Imprimir / Guardar PDF</button></p>';
+  h+='<h2>Resumen del mes</h2><div class=g5>';
+  h+='<div class=met><div class=lb>Patrimonio</div><div class=vl>\u20ac'+Math.round(D.pat).toLocaleString('es-ES')+'</div></div>';
+  h+='<div class=met><div class=lb>Ingresos</div><div class=vl style="color:#1a7a3a">\u20ac'+Math.round(tIng()).toLocaleString('es-ES')+'</div></div>';
+  h+='<div class=met><div class=lb>Gastos</div><div class=vl style="color:#c03030">\u20ac'+Math.round(tGas()).toLocaleString('es-ES')+'</div></div>';
+  h+='<div class=met><div class=lb>Inversi\u00f3n</div><div class=vl style="color:#1a4a9a">\u20ac'+Math.round(tInv()).toLocaleString('es-ES')+'</div></div>';
+  h+='<div class=met><div class=lb>Margen</div><div class=vl style="color:'+(mar>=0?'#1a7a3a':'#c03030')+'">'+(mar>=0?'':'-')+'\u20ac'+Math.round(Math.abs(mar)).toLocaleString('es-ES')+'</div></div>';
+  h+='</div>';
+  h+='<div class=g2>';
+  h+='<div><h2>Evoluci\u00f3n del patrimonio</h2><div class=cbox><img src="'+linePat+'"/></div></div>';
+  h+='<div><h2>Distribuci\u00f3n de activos</h2><div class=dw><img src="'+donut+'"/><div>'+(portLeg||'<p style="color:#aaa;font-size:12px">Sin inversiones</p>')+'</div></div></div>';
+  h+='</div>';
+  h+='<div class=g2>';
+  h+='<div><h2>Desglose de gastos</h2><div class=cbox><img src="'+barGas+'"/></div></div>';
+  h+='<div><h2>Desglose de inversi\u00f3n</h2><div class=cbox><img src="'+barInv+'"/></div></div>';
+  h+='</div>';
+  h+='<h2>Detalle del presupuesto</h2><div class=g3>';
+  h+='<div><h2>Ingresos</h2><table>'+iR+'<tr class=tr><td>Total</td><td style="color:#1a7a3a">\u20ac'+Math.round(tIng()).toLocaleString('es-ES')+'</td></tr></table></div>';
+  h+='<div><h2>Gastos</h2><table>'+gR+'<tr class=tr><td>Total</td><td style="color:#c03030">\u20ac'+Math.round(tGas()).toLocaleString('es-ES')+'</td></tr></table></div>';
+  h+='<div><h2>Inversi\u00f3n</h2><table>'+vR+'<tr class=tr><td>Total</td><td style="color:#1a4a9a">\u20ac'+Math.round(tInv()).toLocaleString('es-ES')+'</td></tr></table></div>';
+  h+='</div>';
+  h+='<div class=footer>Club One &middot; Generado el '+new Date().toLocaleDateString('es-ES')+'</div>';
+  h+='</body></html>';
+  w.document.write(h);
+  w.document.close();
+}
+
+construirSelector();
+initGraficos();
+cargar();
+</script>
+</body>
+</html>
